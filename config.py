@@ -1,8 +1,19 @@
-#config file containing credentials for rds mysql instance
-rds_host  = "goatsfinedb.cy05yahye4yx.us-east-1.rds.amazonaws.com"
-db_username = "mysqladmin"
-db_password = "d3f1anc3"
-db_name = "GoatsFineDB"
+import boto3
+import os
+from base64 import b64decode
+import logging
 
-#Slack Config
-slack_token = "xoxp-218469709079-217452126659-375985897264-74ac3c8df07b71351ba1ed069a635a30"
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+##config file containing credentials for rds mysql instance
+rds_host  = os.environ['rds_host']
+db_username = os.environ['db_username']
+db_name = os.environ['db_name']
+
+#Decrypt Secrets
+ENCRYPTEDdb_password = os.environ['db_password']
+db_password = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTEDdb_password))['Plaintext'].decode("utf-8") 
+
+ENCRYPTEDslack_token = os.environ['slack_token']
+slack_token = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTEDslack_token))['Plaintext'].decode("utf-8") 
